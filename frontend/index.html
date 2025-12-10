@@ -1,107 +1,955 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agente de Copy — CENAT</title>
+  <meta charset="UTF-8" />
+  <title>Agente de IA para E-mail — CENAT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #fafafa;
-            margin: 0;
-            padding: 40px;
-        }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+      background: #0a0e1a;
+      color: #e5e7eb;
+    }
 
-        h1 {
-            margin-bottom: 20px;
-        }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-        form {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 420px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-        }
+    .app {
+      width: 100%;
+      max-width: 1200px;
+      background: #111827;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
 
-        label {
-            font-weight: bold;
-            margin-top: 10px;
-            display: block;
-        }
+    /* Header */
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: #0f1419;
+    }
 
-        select, textarea, input, button {
-            width: 100%;
-            margin-top: 6px;
-            margin-bottom: 18px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        textarea {
-            height: 120px;
-            resize: vertical;
-        }
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
 
-        button {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-        }
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f9fafb;
+      margin-bottom: 4px;
+    }
 
-        button:hover {
-            background: #0c56c4;
-        }
+    .brand-text p {
+      font-size: 13px;
+      color: #9ca3af;
+    }
 
-        #response {
-            white-space: pre-wrap;
-            background: #fff;
-            border-radius: 8px;
-            margin-top: 25px;
-            padding: 20px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-        }
-    </style>
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #1f2937;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+      border: 1px solid #374151;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+
+    .keyboard-hint {
+      padding: 4px 8px;
+      background: #1f2937;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #6b7280;
+      border: 1px solid #374151;
+    }
+
+    /* Main Content */
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+      min-height: 600px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Panels */
+    .panel {
+      background: #1a1f2e;
+      border-radius: 12px;
+      border: 1px solid #2d3748;
+      padding: 24px;
+    }
+
+    .panel-header {
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f9fafb;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .panel-subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    .info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px;
+      font-size: 11px;
+      color: #c7d2fe;
+      margin-top: 12px;
+    }
+
+    /* Form */
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #d1d5db;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    label span {
+      font-size: 11px;
+      font-weight: 400;
+      color: #6b7280;
+    }
+
+    input,
+    textarea,
+    select {
+      background: #0f1419;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #f9fafb;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .field-helper {
+      font-size: 11px;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .error-text {
+      padding: 10px 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      font-size: 12px;
+      color: #fca5a5;
+    }
+
+    /* Form Footer */
+    .form-footer {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid #2d3748;
+    }
+
+    .form-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .form-info-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      padding: 8px 16px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #d1d5db;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-secondary:hover {
+      background: #374151;
+      border-color: #4b5563;
+    }
+
+    /* Preview */
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .preview-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #9ca3af;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-primary {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+      color: #c7d2fe;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .preview-body {
+      background: #0f1419;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      padding: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .preview-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .preview-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .preview-body::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 3px;
+    }
+
+    .preview-placeholder {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .preview-placeholder p {
+      margin-bottom: 12px;
+    }
+
+    .preview-line {
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .preview-line .label {
+      font-weight: 500;
+      color: #6b7280;
+      margin-right: 8px;
+    }
+
+    .preview-subject {
+      margin: 16px 0;
+      padding: 12px;
+      background: rgba(99, 102, 241, 0.05);
+      border-left: 3px solid #6366f1;
+      font-size: 15px;
+      font-weight: 600;
+      color: #f9fafb;
+      border-radius: 4px;
+    }
+
+    .preview-email-body {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      color: #e5e7eb;
+      font-size: 14px;
+    }
+
+    .preview-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #2d3748;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .preview-footer-stats {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #4b5563;
+    }
+
+    .preview-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 6px;
+      font-size: 11px;
+      color: #86efac;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">IA</div>
+        <div class="brand-text">
+          <h1>Agente de E-mail — CENAT</h1>
+          <p>Gere e-mails institucionais alinhados ao CENAT em segundos</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          <span>Conectado</span>
+        </div>
+        <div class="keyboard-hint">CTRL + ENTER</div>
+      </div>
+    </header>
 
-    <h1>Agente de Copy — CENAT</h1>
+    <main>
+      <!-- Painel Esquerdo: Formulário -->
+      <section class="panel" id="form-panel">
+        <div class="panel-header">
+          <div class="panel-title">Briefing do E-mail</div>
+          <div class="panel-subtitle">
+            Preencha as informações abaixo para gerar um e-mail personalizado com IA.
+          </div>
+          <div class="info-badge">
+            🎯 Conectado ao RAG oficial do CENAT
+          </div>
+        </div>
 
-    <form id="emailForm">
-        <label>Produto:</label>
-        <select id="product" required>
-            <option value="">Selecione...</option>
-            <option value="pos">Pós-Graduação</option>
-            <option value="congresso">Congresso</option>
-            <option value="intercambio">Intercâmbio</option>
-            <option value="aula">Aula ao Vivo</option>
-            <option value="geral">Outro tipo</option>
-        </select>
+        <form class="form" id="email-form">
+          <div class="field-group">
+            <div class="field">
+              <label for="product">
+                Produto
+                <span>(obrigatório)</span>
+              </label>
+              <select id="product" required>
+                <option value="">Selecione...</option>
+                <option value="pos">Pós-Graduação</option>
+                <option value="congresso">Congresso</option>
+                <option value="intercambio">Intercâmbio</option>
+                <option value="aula">Aula ao Vivo</option>
+                <option value="geral">Outro tipo / Geral</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="objective">
+                Objetivo
+                <span>(obrigatório)</span>
+              </label>
+              <select id="objective" required>
+                <option value="">Selecione...</option>
+                <option value="ultimas_vagas">Últimas vagas</option>
+                <option value="desconto">Desconto especial</option>
+                <option value="abertura_turma">Abertura de turma</option>
+                <option value="lembrete">Lembrete</option>
+                <option value="reaquecimento">Reativar lead</option>
+              </select>
+            </div>
+          </div>
 
-        <label>Objetivo do e-mail:</label>
-        <select id="objective" required>
-            <option value="">Selecione...</option>
-            <option value="ultimas_vagas">Últimas Vagas</option>
-            <option value="desconto">Desconto Especial</option>
-            <option value="abertura_turma">Abertura de Turma</option>
-            <option value="lembrete">Lembrete</option>
-            <option value="reaquecimento">Reativar Lead</option>
-        </select>
+          <div class="field-group">
+            <div class="field">
+              <label for="to">
+                Para
+                <span>(opcional)</span>
+              </label>
+              <input
+                id="to"
+                type="text"
+                placeholder="Nome da pessoa ou grupo"
+                autocomplete="off"
+              />
+            </div>
+            <div class="field">
+              <label for="language">
+                Idioma
+              </label>
+              <select id="language">
+                <option value="pt-BR">Português (BR)</option>
+                <option value="en">Inglês</option>
+                <option value="es">Espanhol</option>
+              </select>
+            </div>
+          </div>
 
-        <label>Briefing (opcional):</label>
-        <textarea id="briefing" placeholder="Detalhes adicionais..."></textarea>
+          <div class="field">
+            <label for="subjectBase">
+              Assunto base
+              <span>(obrigatório)</span>
+            </label>
+            <input
+              id="subjectBase"
+              type="text"
+              placeholder="Ex: Últimas vagas para a pós-graduação em Saúde Mental"
+              autocomplete="off"
+              required
+            />
+            <div class="field-helper">A IA vai criar uma linha de assunto otimizada.</div>
+          </div>
 
-        <button type="submit">Gerar E-mail</button>
-    </form>
+          <div class="field">
+            <label for="goal">
+              Objetivo do e-mail
+            </label>
+            <textarea
+              id="goal"
+              placeholder="Ex: Quero que a pessoa clique para se inscrever, pois estamos nas últimas vagas..."
+              required
+            ></textarea>
+          </div>
 
-    <div id="response"></div>
+          <div class="field-group">
+            <div class="field">
+              <label for="tone">
+                Tom
+              </label>
+              <select id="tone">
+                <option value="profissional">Profissional</option>
+                <option value="consultivo">Consultivo</option>
+                <option value="amigavel">Amigável</option>
+                <option value="direto">Direto e objetivo</option>
+                <option value="persuasivo">Persuasivo</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="length">
+                Tamanho
+              </label>
+              <select id="length">
+                <option value="curto">Curto</option>
+                <option value="medio" selected>Médio</option>
+                <option value="longo">Longo</option>
+              </select>
+            </div>
+          </div>
 
-    <script src="script.js"></script>
+          <div class="field">
+            <label for="keyPoints">
+              Pontos importantes
+              <span>(opcional)</span>
+            </label>
+            <textarea
+              id="keyPoints"
+              placeholder="- Turma com início em DD/MM&#10;- Certificado reconhecido pelo MEC&#10;- Condição especial até sexta"
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="extra">
+              Observações
+              <span>(opcional)</span>
+            </label>
+            <input
+              id="extra"
+              type="text"
+              placeholder="Ex: não citar valores, evitar linguagem técnica"
+              autocomplete="off"
+            />
+          </div>
+
+          <div id="error" class="error-text" style="display:none;"></div>
+
+          <div class="form-footer">
+            <div class="form-info">
+              <div class="form-info-icon">⚡</div>
+              <div>
+                <div style="font-weight: 600; color: #e5e7eb;">Geração Inteligente</div>
+                <div style="font-size: 11px;">RAG + LLM otimizado para CENAT</div>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" id="generate-btn">
+              <span>Gerar E-mail</span>
+              <span>↵</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Painel Direito: Preview -->
+      <section class="panel" id="preview-panel">
+        <div class="preview-header">
+          <div>
+            <div class="panel-title">Preview</div>
+            <div class="panel-subtitle">
+              O e-mail gerado aparecerá aqui em tempo real.
+            </div>
+          </div>
+          <div class="preview-meta">
+            <div class="badge badge-primary">
+              <span id="preview-language-label">PT-BR</span>
+            </div>
+            <button class="btn-secondary" type="button" id="copy-btn">
+              <span>📋</span>
+              <span>Copiar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-body" id="preview-body">
+          <div class="preview-placeholder" id="preview-placeholder">
+            <p>
+              <strong>Preencha o briefing</strong> ao lado e clique em "Gerar E-mail" para ver o resultado.
+            </p>
+            <p>
+              A visualização seguirá o formato de um cliente de e-mail, com assunto, corpo e assinatura.
+            </p>
+          </div>
+
+          <div id="preview-content" style="display:none;">
+            <div class="preview-line">
+              <span class="label">Para:</span>
+              <span id="preview-to">—</span>
+            </div>
+            <div class="preview-line">
+              <span class="label">Produto:</span>
+              <span id="preview-product">—</span>
+            </div>
+            <div class="preview-line">
+              <span class="label">Objetivo:</span>
+              <span id="preview-objective">—</span>
+            </div>
+            <div class="preview-line">
+              <span class="label">Tom:</span>
+              <span id="preview-tone">Profissional</span>
+            </div>
+
+            <div class="preview-subject" id="preview-subject">
+              [Assunto gerado aparecerá aqui]
+            </div>
+
+            <div class="preview-email-body" id="preview-email-body">
+              [Corpo do e-mail aparecerá aqui]
+            </div>
+
+            <div class="preview-footer">
+              <div class="preview-footer-stats">
+                <span id="preview-length">≈ 0 palavras</span>
+                <div class="dot"></div>
+                <span id="preview-score">—</span>
+              </div>
+              <div class="preview-tag">
+                ✓ Pronto para enviar
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" style="display:none;">
+    <div>✅</div>
+    <div id="toast-message">Texto copiado.</div>
+  </div>
+
+  <script>
+    const form = document.getElementById("email-form");
+    const generateBtn = document.getElementById("generate-btn");
+    const errorEl = document.getElementById("error");
+
+    const languageSelect = document.getElementById("language");
+    const previewLanguageLabel = document.getElementById("preview-language-label");
+
+    const previewPlaceholder = document.getElementById("preview-placeholder");
+    const previewContent = document.getElementById("preview-content");
+    const previewTo = document.getElementById("preview-to");
+    const previewProduct = document.getElementById("preview-product");
+    const previewObjective = document.getElementById("preview-objective");
+    const previewTone = document.getElementById("preview-tone");
+    const previewGoal = document.getElementById("preview-goal");
+    const previewSubject = document.getElementById("preview-subject");
+    const previewEmailBody = document.getElementById("preview-email-body");
+    const previewLength = document.getElementById("preview-length");
+    const previewScore = document.getElementById("preview-score");
+
+    const copyBtn = document.getElementById("copy-btn");
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    function showToast(message) {
+      toastMessage.textContent = message;
+      toast.style.display = "flex";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 2200);
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        generateBtn.setAttribute("disabled", "true");
+        generateBtn.innerHTML = "<span>Gerando…</span>";
+      } else {
+        generateBtn.removeAttribute("disabled");
+        generateBtn.innerHTML = "<span>Gerar E-mail</span><span>↵</span>";
+      }
+    }
+
+    function updateLanguageLabel() {
+      const map = {
+        "pt-BR": "PT-BR",
+        "en": "EN",
+        "es": "ES"
+      };
+      previewLanguageLabel.textContent = map[languageSelect.value] || languageSelect.value.toUpperCase();
+    }
+
+    languageSelect.addEventListener("change", updateLanguageLabel);
+    updateLanguageLabel();
+
+    copyBtn.addEventListener("click", () => {
+      const subject = previewSubject.textContent || "";
+      const body = previewEmailBody.textContent || "";
+      if (!subject.trim() && !body.trim()) {
+        showToast("Nada para copiar ainda.");
+        return;
+      }
+      const full = "Assunto: " + subject + "\n\n" + body;
+      navigator.clipboard.writeText(full)
+        .then(() => showToast("E-mail copiado!"))
+        .catch(() => showToast("Erro ao copiar."));
+    });
+
+    function estimateLength(text) {
+      if (!text) return 0;
+      return text.trim().split(/\s+/).length;
+    }
+
+    function estimateReplyScore(words) {
+      if (!words) return "—";
+      let score;
+      if (words < 60) score = "Alta (curto)";
+      else if (words < 140) score = "Muito alta";
+      else if (words < 250) score = "Moderada";
+      else score = "Baixa (muito longo)";
+      return "Taxa de resposta: " + score;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      errorEl.style.display = "none";
+      errorEl.textContent = "";
+
+      const product = document.getElementById("product").value.trim();
+      const objective = document.getElementById("objective").value.trim();
+
+      const to = document.getElementById("to").value.trim();
+      const subjectBase = document.getElementById("subjectBase").value.trim();
+      const goal = document.getElementById("goal").value.trim();
+      const tone = document.getElementById("tone").value;
+      const length = document.getElementById("length").value;
+      const keyPoints = document.getElementById("keyPoints").value.trim();
+      const extra = document.getElementById("extra").value.trim();
+      const language = languageSelect.value;
+
+      if (!product || !objective) {
+        errorEl.textContent = "Selecione o produto e o objetivo do e-mail.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      if (!subjectBase || !goal) {
+        errorEl.textContent = "Preencha o assunto base e o objetivo do e-mail.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      const briefingParts = [];
+      briefingParts.push(`Assunto base desejado: ${subjectBase}`);
+      briefingParts.push(`Objetivo em texto: ${goal}`);
+
+      if (keyPoints) {
+        briefingParts.push(`Pontos importantes:\n${keyPoints}`);
+      }
+
+      if (extra) {
+        briefingParts.push(`Observações adicionais:\n${extra}`);
+      }
+
+      briefingParts.push(
+        `Metadados:\n- Destinatário/contexto: ${to || "não informado"}\n- Idioma desejado: ${language}\n- Tom: ${tone}\n- Tamanho: ${length}`
+      );
+
+      const briefing = briefingParts.join("\n\n");
+
+      setLoading(true);
+
+      try {
+        const payload = {
+          product,
+          objective,
+          briefing
+        };
+
+        const response = await fetch("http://localhost:8000/email/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error("Erro ao gerar e-mail (" + response.status + "): " + text);
+        }
+
+        const data = await response.json();
+        const subject = (data.assunto || subjectBase || "").trim();
+        const body = (data.corpo || "").trim();
+
+        previewPlaceholder.style.display = "none";
+        previewContent.style.display = "block";
+
+        previewTo.textContent = to || "Contato";
+        previewProduct.textContent = document.querySelector("#product option:checked").textContent || "—";
+        previewObjective.textContent = document.querySelector("#objective option:checked").textContent || "—";
+        previewTone.textContent = document.querySelector("#tone option:checked").textContent;
+        previewSubject.textContent = subject || "[Assunto gerado aparecerá aqui]";
+        previewEmailBody.textContent = body || "O corpo gerado do e-mail aparecerá aqui.";
+
+        const words = estimateLength(body);
+        previewLength.textContent = "≈ " + words + " palavras";
+        previewScore.textContent = estimateReplyScore(words);
+
+        showToast("E-mail gerado com sucesso!");
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = err.message || "Erro inesperado ao gerar o e-mail.";
+        errorEl.style.display = "block";
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        generateBtn.click();
+      }
+    });
+  </script>
 </body>
 </html>

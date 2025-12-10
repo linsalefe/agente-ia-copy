@@ -1,101 +1,118 @@
 import os
+import json
 from openai import OpenAI
 
 from app.rag.search import search_rag
 
-# Carrega API KEY
+# ============================================
+# Config OpenAI
+# ============================================
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY não definido no ambiente.")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-# ================================================
-# Utilitário para carregar system prompt oficial
-# ================================================
-def load_system_prompt():
-    prompt_path = "app/docs/prompts/agent_system.md"
-
+# ============================================
+# Carrega o system prompt oficial do agente
+# ============================================
+def load_system_prompt() -> str:
+    """
+    Lê o prompt sistêmico do agente de copy do CENAT.
+    """
+    # Caminho relativo a partir da raiz do projeto
+    prompt_path = os.path.join("app", "docs", "prompts", "agent_system.md")
 
     if not os.path.exists(prompt_path):
-        return "Você é um agente de copywriting institucional do CENAT."
+        # Fallback mínimo, só pra não quebrar
+        return (
+            "Você é um agente de copywriting institucional do CENAT. "
+            "Gere e-mails profissionais, éticos e alinhados à saúde mental."
+        )
 
     with open(prompt_path, "r", encoding="utf-8") as f:
         return f.read()
 
 
-# ================================================
-# Função principal — gera e-mail completo
-# ================================================
-def generate_email(product: str, objective: str, briefing: str):
+# ============================================
+# Função principal — gera e-mail com RAG
+# ============================================
+def generate_email(product: str, objective: str, briefing: str) -> dict:
     """
-    Recebe:
-    - product: tipo (pos, congresso, intercambio, etc)
-    - objective: ultimas_vagas, desconto, etc
-    - briefing: instruções adicionais
+    Gera um e-mail completo (assunto + corpo) usando:
+    - tipo de produto (pós, congresso, intercâmbio etc.)
+    - objetivo do e-mail (ultimas_vagas, desconto, reaquecimento etc.)
+    - briefing livre
+    - contexto do RAG com os materiais do CENAT
 
-    Retorna:
-    - assunto
-    - corpo do e-mail
+    Retorna dict:
+    {
+        "assunto": "...",
+        "corpo": "..."
+    }
     """
 
-    # 1 — Busca contexto via RAG
-    rag_context = search_rag(query=f"{product} {objective} {briefing}")
+    # 1) Busca contexto no RAG
+    query = f"{product} {objective} {briefing}"
+    rag_context = search_rag(query=query, top_k=8)
 
-    # 2 — Carrega prompt oficial
+    # 2) Carrega o system prompt
     system_prompt = load_system_prompt()
 
-    # 3 — Mensagem do usuário enviada ao modelo
+    # 3) Monta mensagem de usuário orientando o formato JSON
     user_prompt = f"""
-Gere um e-mail institucional completo do CENAT.
+Você deve gerar um e-mail institucional do CENAT **usando fortemente o contexto abaixo**.
 
-Informações enviadas pelo usuário:
-- Produto: {product}
+### Dados enviados pelo usuário:
+- Produto (tipo): {product}
 - Objetivo do e-mail: {objective}
-- Briefing: {briefing}
+- Briefing adicional: {briefing}
 
-Use o seguinte contexto do RAG caso seja útil:
-
+### Contexto do RAG (conteúdo oficial do CENAT):
 {rag_context}
 
 IMPORTANTE:
-- Retorne APENAS um JSON no formato:
+- Use o contexto do RAG como fonte principal de informações.
+- Adapte o estilo aos e-mails reais do CENAT (Pablo, Mariana, Victória).
+- Adapte o tom ao objetivo: por exemplo, 'ultimas_vagas', 'desconto', 'reaquecimento' etc.
+- Nunca invente datas, preços ou números específicos se eles não estiverem no contexto.
+
+RETORNO OBRIGATÓRIO:
+Responda **APENAS** com um JSON válido, no formato:
+
 {{
-  "assunto": "<linha do assunto>",
-  "corpo": "<corpo completo do e-mail>"
+  "assunto": "<linha do assunto, sem emojis>",
+  "corpo": "<corpo completo do e-mail, com quebras de linha em \\n>"
 }}
-Sem comentários.
+
+Nada antes, nada depois, nenhum comentário. Apenas o JSON.
 """
 
-    # ================================================
-    # 4 — Chamada ao modelo da OpenAI
-    # ================================================
+    # 4) Chamada ao modelo
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # leve, rápido e barato
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "user", "content": user_prompt},
         ],
-        temperature=0.5,
-        max_tokens=700
+        temperature=0.4,
+        max_tokens=900,
     )
 
-    # 5 — Extrai o conteúdo da resposta
     content = response.choices[0].message.content
 
-    # 6 — Tenta converter retorno em JSON
-    import json
-
+    # 5) Tenta interpretar como JSON
     try:
         data = json.loads(content)
-        assunto = data.get("assunto", "Assunto não definido")
-        corpo = data.get("corpo", "")
+        assunto = data.get("assunto", "").strip() or "Assunto não definido"
+        corpo = data.get("corpo", "").strip() or ""
     except Exception:
-        # fallback caso modelo retorne algo inesperado
+        # fallback: se vier quebrado, devolve tudo no corpo
         assunto = "Assunto não definido"
-        corpo = content
+        corpo = content.strip()
 
-    # 7 — Retorna estrutura final
     return {
         "assunto": assunto,
-        "corpo": corpo
+        "corpo": corpo,
     }
