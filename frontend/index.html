@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agente de Copy — CENAT</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fafafa;
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 420px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        select, textarea, input, button {
+            width: 100%;
+            margin-top: 6px;
+            margin-bottom: 18px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0c56c4;
+        }
+
+        #response {
+            white-space: pre-wrap;
+            background: #fff;
+            border-radius: 8px;
+            margin-top: 25px;
+            padding: 20px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Agente de Copy — CENAT</h1>
+
+    <form id="emailForm">
+        <label>Produto:</label>
+        <select id="product" required>
+            <option value="">Selecione...</option>
+            <option value="pos">Pós-Graduação</option>
+            <option value="congresso">Congresso</option>
+            <option value="intercambio">Intercâmbio</option>
+            <option value="aula">Aula ao Vivo</option>
+            <option value="geral">Outro tipo</option>
+        </select>
+
+        <label>Objetivo do e-mail:</label>
+        <select id="objective" required>
+            <option value="">Selecione...</option>
+            <option value="ultimas_vagas">Últimas Vagas</option>
+            <option value="desconto">Desconto Especial</option>
+            <option value="abertura_turma">Abertura de Turma</option>
+            <option value="lembrete">Lembrete</option>
+            <option value="reaquecimento">Reativar Lead</option>
+        </select>
+
+        <label>Briefing (opcional):</label>
+        <textarea id="briefing" placeholder="Detalhes adicionais..."></textarea>
+
+        <button type="submit">Gerar E-mail</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
